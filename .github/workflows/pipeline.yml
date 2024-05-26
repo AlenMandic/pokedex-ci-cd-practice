@@ -1,0 +1,29 @@
+# When setting up the enviorment for our CI workflow, we need to make sure to run it on the exact same operating system as our live server(host) will be on, in this case let's say it's ubuntu 20.4.
+
+# It is important to replicate the same environment in CI as in production as closely as possible, to avoid situations where the same code works differently in CI and production, which would effectively defeat the purpose of using CI.
+
+# In this case, since our app runs using Node.JS and webpack, we need to setup a working enviroment below where can execute node scripts, beacuse we need to run testing and linting commands
+
+# We also have to start up and prepare the Node project on the virtual enviroment the CI runs in ( runs-on: ubuntu ), so we have to do npm install to ready the application for use/testing.
+
+name: Deployment pipeline
+
+on:
+    push:
+      branches:
+        - main
+
+jobs:
+    simple_deployment_pipeline:
+        runs-on: ubuntu-20.04
+        steps:
+          - uses: actions/checkout@v4
+          - uses: actions/setup-node@v4
+            with:
+              node-version: '20'
+
+          - name: Install dependencies
+            run: npm install
+
+          - name: Run linter
+            run: npm run eslint

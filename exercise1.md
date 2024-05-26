@@ -1,0 +1,9 @@
+CI/CD basic plan and overview for a small Python application and it's automated deployment pipeline.
+
+Linting: To maintain a standard of code quality and error checking, we will use a popular Python linter which combines multiple smaller linters into one; Pylint.
+Testing: In order to make sure our changes are ready to be pushed to live branches without breaking everything, we will write comprehensive tests using the most popular Python test framework; Pytest. It will give us the ability to write unit, integration and functional tests for our application.
+Building: For creating and distributing our finished application, we can use the PyBuilder tool which also supports testing for builds and other feautures.
+
+CI/CD tools in Python other than Jenkins and GitHub Actions: Travis/CI is also integrated via GitHub like GitHub Actions and might be a more preferable option in some cases, CircleCI offers good integration with Docker, so it could be very useful for projects relying on Docker, and GitLab CI/CD integrates directly with the GitLab platform.
+
+And now finally we have to decide whether we want to self-host our CI/CD deployment pipeline (Jenkins), or we want to use it via a CI/CD tool already on the cloud (GitHub Actions). If our software project is small to medium sized, a cloud hosted option might be prefered such as GitHub actions, as it's already ready-made and simpler to setup, however it doesn't scale well if our CI/CD server needs might have to increase.  In those cases, setting up our own self-hosted CI/CD pipeline using something like Jenkins will offer more powerful scaling and customization, at the cost of being more complicated to setup. In this case since this application isn't too big, we could probbably go with GitHub actions.
