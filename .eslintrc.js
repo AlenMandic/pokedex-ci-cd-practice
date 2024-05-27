@@ -13,7 +13,7 @@ module.exports = {
       'jsx': true
     },
     'ecmaVersion': 2018,
-    'sourceType': 'module'
+    'sourceType': 'module',
   },
   'plugins': [
     'react', 'jest'
@@ -25,7 +25,7 @@ module.exports = {
     ],
     'linebreak-style': [
       'error',
-      'windows'
+      'unix'
     ],
     'quotes': [
       'error',
