@@ -1,3 +1,7 @@
 webpack.config.js
 node_modules/
 dist/
+test
+tests
+tests-examples/
+playwright.config.js

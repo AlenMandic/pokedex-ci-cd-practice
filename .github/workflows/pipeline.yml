@@ -9,27 +9,42 @@
 name: Deployment pipeline
 
 on:
-    push:
-      branches:
-        - main
+  push:
+    branches:
+      - main
 
 jobs:
-    simple_deployment_pipeline:
-        runs-on: ubuntu-20.04
-        steps:
-          - uses: actions/checkout@v4
-          - uses: actions/setup-node@v4
-            with:
-              node-version: '20'
+  simple_deployment_pipeline:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
 
-          - name: Install dependencies
-            run: npm install
+      - name: Install dependencies
+        run: npm install
 
-          - name: Run linter
-            run: npm run eslint
+      - name: Run linter
+        run: npm run eslint
 
-          - name: Run webpack build process
-            run: npm run build
-          
-          - name: Run Jest tests for React components
-            run: npm run test
+      - name: Run webpack build process
+        run: npm run build
+
+      - name: Run Jest tests for React components
+        run: npm run test
+
+      - name: Install Playwright Browsers
+        run: npx playwright install --with-deps
+
+      - name: Start development server
+        run: npm run start
+        env:
+          CI: true
+          background: true
+
+      - name: Wait for server to be ready
+        run: npx wait-on http://localhost:3000
+
+      - name: Run Playwright tests
+        run: npx playwright test
