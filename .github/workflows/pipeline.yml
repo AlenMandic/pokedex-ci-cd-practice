@@ -18,6 +18,7 @@ jobs:
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v4
+      - uses: superfly/flyctl-actions/setup-flyctl@master
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
@@ -28,7 +29,7 @@ jobs:
       - name: Run linter
         run: npm run eslint
 
-      - name: Run webpack build process
+      - name: Run Webpack build process
         run: npm run build
 
       - name: Run Jest tests for React components
@@ -47,3 +48,8 @@ jobs:
 
       - name: Run Playwright tests
         run: npx playwright test
+      
+      - name: Deploy app to Fly.io
+        run: flyctl deploy --remote-only
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
