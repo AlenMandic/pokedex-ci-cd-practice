@@ -53,7 +53,17 @@ jobs:
         run: npx playwright test
       
       - name: Deploy app to Fly.io
-        if: ${{ github.event_name == 'push' }}
+        if: ${{ github.event_name == 'push' }} # only run when a pull request is merged onto the main branch, or directly to main.
         run: flyctl deploy --remote-only
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+
+  tag_release:
+      needs: [simple_deployment_pipeline]  # depends on prior job finishing successfully first
+      runs-on: ubuntu-20.04
+      steps:
+        - name: Bump version and push tag
+          if: ${{ github.event_name == 'push' }}
+          uses: anothrNick/github-tag-action@1.67.0
+          env: 
+           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # ensures we are logged into github for authentication
