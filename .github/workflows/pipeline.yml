@@ -51,7 +51,12 @@ jobs:
 
       - name: Run Playwright tests
         run: npx playwright test
-      
+
+      - name: Commit message
+        env:
+          COMMIT_MESSAGES: ${{ toJson(github.event.commits.message) }}
+        run: echo "$COMMIT_MESSAGES"
+
       - name: Deploy app to Fly.io
         if: ${{ github.event_name == 'push' }} # only run when a pull request is merged onto the main branch, or directly to main.
         run: flyctl deploy --remote-only
@@ -63,6 +68,21 @@ jobs:
       runs-on: ubuntu-20.04
       steps:
         - uses: actions/checkout@v4
+        - name: Github context
+          env:
+            GITHUB_CONTEXT: ${{ toJson(github) }}
+          run: echo "$GITHUB_CONTEXT"
+        
+        - name: Commits
+          env:
+            COMMITS: ${{ toJson(github.event.commits) }}
+          run: echo "$COMMITS"
+
+        - name: Commit message
+          env:
+            COMMIT_MESSAGES: ${{ toJson(github.event.commits.message) }}
+          run: echo "$COMMIT_MESSAGES"
+
         - name: Bump version and push tag
           if: ${{ github.event_name == 'push' }}
           uses: anothrNick/github-tag-action@1.67.0
