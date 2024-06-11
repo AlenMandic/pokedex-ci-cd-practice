@@ -2,7 +2,7 @@
 
 # It is important to replicate the same environment in CI as in production as closely as possible, to avoid situations where the same code works differently in CI and production, which would effectively defeat the purpose of using CI.
 
-# In this case, since our app runs using Node.JS and webpack, we need to setup a working enviroment below where can execute node scripts, beacuse we need to run testing and linting commands
+# In this case, since our app runs using Node.JS and webpack, we need to setup a working enviroment below where can execute node scripts, beacuse we need to run testing and linting commands, and build out the project using webpack and a build command.
 
 # We also have to start up and prepare the Node project on the virtual enviroment the CI runs in ( runs-on: ubuntu ), so we have to do npm install to ready the application for use/testing.
 
@@ -54,11 +54,11 @@ jobs:
 
       - name: Commit message
         env:
-          COMMIT_MESSAGES: ${{ toJson(github.event.commits.message) }}
+          COMMIT_MESSAGES: ${{ toJson(github.event.head_commit.message) }}
         run: echo "$COMMIT_MESSAGES"
 
       - name: Deploy app to Fly.io
-        if: ${{ github.event_name == 'push' }} # only run when a pull request is merged onto the main branch, or directly to main.
+        if: ${{ github.event_name == 'push' && !contains(github.event.head_commit.message, '#skip') }} # only run when a pull request is merged onto the main branch, or directly to main.
         run: flyctl deploy --remote-only
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
@@ -70,21 +70,21 @@ jobs:
         - uses: actions/checkout@v4
         - name: Github context
           env:
-            GITHUB_CONTEXT: ${{ toJson(github) }}
+            GITHUB_CONTEXT: ${{ toJson(github) }} # log more information to work with
           run: echo "$GITHUB_CONTEXT"
         
         - name: Commits
           env:
-            COMMITS: ${{ toJson(github.event.commits) }}
+            COMMITS: ${{ toJson(github.event.commits) }} # log more information to work with
           run: echo "$COMMITS"
 
         - name: Commit message
           env:
-            COMMIT_MESSAGES: ${{ toJson(github.event.commits.message) }}
+            COMMIT_MESSAGES: ${{ toJson(github.event.head_commit.message) }} # log more information to work with
           run: echo "$COMMIT_MESSAGES"
 
         - name: Bump version and push tag
-          if: ${{ github.event_name == 'push' }}
+          if: ${{ github.event_name == 'push' && !contains(github.event.head_commit.message, '#skip') }} # if skip is present in commit message, don't bump up version number
           uses: anothrNick/github-tag-action@1.67.0
           env: 
            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # ensures we are logged into github for authentication
