@@ -35,6 +35,14 @@ jobs:
       - name: Run Webpack build process
         run: npm run build
 
+      - name: Send Discord workflow build notification failure
+        uses: rjstone/discord-webhook-notify@v1
+        if: failure()
+        with:
+          severity: error
+          details: Test Failed!
+          webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
+
       - name: Run Jest tests for React components
         run: npm run test
 
@@ -58,10 +66,18 @@ jobs:
         run: echo "$COMMIT_MESSAGES"
 
       - name: Deploy app to Fly.io
-        if: ${{ github.event_name == 'push' && !contains(github.event.head_commit.message, '#skip') }} # only run when a pull request is merged onto the main branch, or directly to main.
+        if: ${{ github.event_name == 'push' && !contains(github.event.head_commit.message, '#skip') }} # only run when a pull request is merged onto the main branch, or directly to main. Don't deploy / version update anything that has #skip in commit msg.
         run: flyctl deploy --remote-only
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+
+      - name: Send Discord workflow status notification cancellation
+        uses: rjstone/discord-webhook-notify@v1
+        if: cancelled()
+        with:
+            severity: warn
+            details: Test Cancelled!
+            webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
 
   tag_release:
       needs: [simple_deployment_pipeline]  # depends on prior job finishing successfully first
@@ -85,6 +101,14 @@ jobs:
 
         - name: Bump version and push tag
           if: ${{ github.event_name == 'push' && !contains(github.event.head_commit.message, '#skip') }} # if skip is present in commit message, don't bump up version number
-          uses: anothrNick/github-tag-action@1.67.0
+          uses: anothrNick/github-tag-action@a2c70ae13a881faf2b4953baaa9e49731997ab36
           env: 
            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # ensures we are logged into github for authentication
+
+        - name: Send Discord workflow status notification success
+          uses: rjstone/discord-webhook-notify@v1
+          if: success()
+          with:
+            severity: info
+            details: Test Succeeded!
+            webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
